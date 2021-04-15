@@ -46,7 +46,7 @@ namespace EWSMailExport
             if (args.Length < 3)
             {
                 Console.WriteLine("EWS Inbox Mail Exporter V." + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
-                Console.WriteLine("Usage: EWSMailExport.exe <Autodiscovery-URL> <Login> <Password>");
+                Console.WriteLine("Usage: EWSMailExport.exe <Autodiscovery-URL> <Username> <Password>");
             }
 
             try
@@ -158,9 +158,13 @@ namespace EWSMailExport
                 // Build CSV file and save:
                 StringBuilder sb = new StringBuilder();
 
+                string separator = "!#!";
+
+                sb.Append("Subject" + separator + "SenderAddress" + separator + "SenderName" + separator + "CCAddresses" + separator + "Body" + separator + "Header" + "\r\n");
+
                 foreach (Mail mail in mails)
                 {
-                    sb.Append(mail.ToCSVLine("!#!"));
+                    sb.Append(mail.ToCSVLine(separator));
                 }
 
                 File.WriteAllText("Mails.csv", sb.ToString(), Encoding.UTF8);

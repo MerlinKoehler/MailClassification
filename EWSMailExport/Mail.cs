@@ -47,7 +47,7 @@ namespace EWSMailExport
         /// <returns>A single CSV-Line</returns>
         public string ToCSVLine(string separator)
         {
-            return this.Subject + separator + this.SenderAddress + separator + this.SenderName + separator + this.CCAddresses + separator + this.Body + separator + this.Header + "\r\n";
+            return this.Subject + separator + this.SenderAddress + separator + this.SenderName + separator + this.CCAddresses + separator + this.Body + separator + this.Header + "!#ENDOFLINE#!\r\n";
         }
     }
 }

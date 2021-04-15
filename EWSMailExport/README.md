@@ -12,4 +12,5 @@ EWSMailExport.exe <Autodiscovery-URL> <Username> <Password>
 The autodiscovery-URL ist most of the times equal to the e-mail address. The username can bei either again the e-mail address or the username as required to log into the active directory.
 
 ## CSV Format
-Because the mail subject, reciepients and mail text can contain comma and semicolon, this program uses ```!#!``` to seperate the different columns.   
+Because the mail subject, reciepients and mail text can contain comma and semicolon, this program uses ```!#!``` to seperate the different columns.
+Every line ends with ``` !#ENDOFLINE#! ```.

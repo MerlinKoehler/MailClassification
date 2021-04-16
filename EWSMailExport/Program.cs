@@ -160,7 +160,7 @@ namespace EWSMailExport
 
                 string separator = "!#!";
 
-                sb.Append("Subject" + separator + "SenderAddress" + separator + "SenderName" + separator + "CCAddresses" + separator + "Body" + separator + "Header" + "\r\n");
+                sb.Append("Subject" + separator + "SenderAddress" + separator + "SenderName" + separator + "CCAddresses" + separator + "Body" + separator + "Header" + "!#ENDOFLINE#!\r\n");
 
                 foreach (Mail mail in mails)
                 {

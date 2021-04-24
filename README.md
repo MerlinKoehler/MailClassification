@@ -1,36 +1,248 @@
-# Bring order to chaos: automatic E-mail organization.
-**Team:** Justus-Jonas Erker and Merlin Koehler
+# NLP Mail Classification
 
-**Tags:** text clustering, text classification, topic modeling, named entity recognition.
+This repository contains an e-mail clustering and classification
 
-**Problem:** E-mail inboxes tend to grow large very quickly. Organizing large sets of e-mails into folders is essential for users to find e-mails quickly. Traditional approaches, as used in Outlook, use a rule-based approach to tackle this issue. Users can manually generate rules to move e-mails into the desired folders. These rules can, for example, use the sender address or the mail subject, or the mail body to classify e-mails. Other e-mail sorting algorithms used in services like Gmail tend to divide e-mails into pre-defined folders (like social media, advertisements, etc.).
+## Software Design
 
-**Goal:** Our goal is to develop a mail clustering and classification engine, which follows a more user-specific approach that automatically learns different topics and recommends a suitable folder structure. The engine should also recommend names for the different folders. Moreover, should the user be able to edit the recommended structure, add/delete folders, and move e-mails between folders. The engine should then adapt to the user-given structure. Furthermore, since the mailbox is a constantly changing system, it is required to add/delete classes after the initial training.
+The NLP Mail Classification consists of two parts:
 
-**Approach:** The engine should use the mail subject, text, and metadata to cluster and classify the e-mails. This data needs to be pre-processed in the first step (tokenization, stemming, lemmatization, etc.). Next, we need to decide on a suitable way to represent the data to the algorithms e. g. document-vector model. To automatically divide the e-mails, we will apply clustering algorithms to the pre-processed data. The resulting clusters will be proposed as folders to the user. Naming these folders will be done using topic modeling or named entity recognition.
-Since the user should also be able to edit the clusters (add/delete folders) and move data points between the clusters (move mails to a different folder), it might be required to combine the unsupervised clustering with a supervised classification algorithm.
-
-**Data Sets:** Mainly, we will work on our private mailboxes from UM. We have a way to export the mail text and metadata. We want to cluster the mails, for example, according to our different courses, general information, UM-news, UM-sports etc. Moreover, we might have a look at the Enron dataset.
-
-**Challenges:**
-- *Small number of training samples:* A small number of training samples will be a challenge, especially when using fresh mailboxes with only a few mails in them. Moreover, sometimes only a few e-mails can form a class. Therefore we need to use robust algorithms which can handle a small set of training samples.
-
-- *Class imbalance:* In combination with the mentioned issue above, there can be a high imbalance between the classes. 
-
-- *Re-training vs. incremental learning:* Since a mailbox is a live system, new classes will be added over time, and existing classes might get deleted or combined with other classes or split into several classes. Therefore we need to decide on the learning algorithms, whether they should use incremental learning or should re-train on the learning repository every time.
-
-**Opportunities:**
-- *Similiar Layout:* Many e-mails belonging to the same class often have a similar text and sender address. Examples of this are delivery notifications from Amazon or receipts from PayPal. Except for a few variables, the text is, most of the time, equal. This leads to a significant advantage and probably making training on a few examples easier.
-
-- *No big-data:* Since we are only building one model for a single user mailbox (a few gigabytes), the data will be quite small compared to a whole mail repository in huge companies. Therefore we might be able to use learning and clustering algorithms that are not performant for big data.  
-
-**Metrics:**
-To evaluate the clustering results, we will use metrics for clustering algorithms and human evaluation to check if the clusters make sense in real life. Afterward, we will adapt the clustering results to our personal desired structure. With a hold-out test set, we can evaluate the classification results using precision, recall, and F1 score.
+```mermaid
+graph LR
+	A[Outlook] --Mail--> B[Python Text Classification]
+	B -- Classification Result --> A
+```
 
 
-**Optional Components:**
-- *Outlook-Plugin:* Since we are quite familiar with Outlook-VSTO programming in .NET we might develop a plugin to organize the mails for Outlook. The plugin will use an interface to Python, which we will be mainly working with for machine learning. 
 
-- *Hierarchy:* Since mailbox folders can also contain subfolders, we might use hierarchical clustering and classification algorithms. Else we will treat each subfolder as a different class.
 
-- *Explainability:* If possible, we will try to use explainable algorithms like decision trees to give the user feedback on the decisions.
+
+- An Outlook plugin used for handling mail specific task like:
+  - Communicate with the Python API
+  - Move mails to directory
+  - Tag mails
+
+
+
+- A Python API used for text clustering and text classification:
+  - Initialize text data base
+  - Cluster texts
+  - Topic modeling on clusters
+  - Classify text
+
+## General Process
+
+```mermaid
+graph TD
+	A[1. Init Database] --> B[2. Clustering]
+    B --> C[3. Topic Modelling]
+    C --> D[4. Build Classification Models]
+    D --> E[5. Continous Classification]
+    E --> E
+```
+
+
+
+
+
+### Database Initialization
+
+The first step is to set up a text/mail database. This is required to perform further clustering, topic modelling and classification tasks. To set up the database, all mails from the current Outlook inbox (and optional other folders) have to be exported and loaded into the Python Text Classification API. 
+
+### Initial Clustering
+
+The second step is the initial clustering where unsupervised algorithms are used to organize the mails into several clusters.
+
+### Topic Modeling
+
+In the third step, topic modelling is used to generate class names for the different clusters. These can be used for example for folder naming.
+
+### Build Classification Models
+
+After the initial clustering step, the cluster models will be discarded and replaced by classification models. The classification models will be trained on the initial cluster results. This is required, so that the user can in the next step modify the clustering results, create own classes and move mails/datapoints between classes. 
+
+### Continous Classification
+
+Since a mailbox, as most other document systems, is a live system, it is required to constantly re-train the model, especially when new classes get created by the user or a mails is wrongly classified. 
+
+
+
+## Python Text Classification API
+
+*Initialize a new text database, perform initial clustering and topic modelling.*
+
+**InitDataBase**(string[] *texts*, string *databaseID*):
+
+- *texts:* The texts/mails for the initial database.
+- *databaseID:* The ID of the new database. Used for creating multiple text databases.
+
+**InitDataBase**(string *csvpath*, string *databaseID*):
+
+- *csvpath:* The path to a [CSV](##CSV-Layout) file, where the texts are stored. 
+- *databaseID:* The ID of the new database. Used for creating multiple text databases.
+
+***Returns:*** 0 in case of success, [error code](##Error Codes) in case of failure.
+
+---
+
+*Initialize a new text database, with already existing classes and class names.*
+
+**InitDataBase**(string[] *texts*, int[] *classIDs*, string[] *classNames*, string *databaseID*):
+
+- *texts:* The texts/mails for the initial database.
+- *classIDs:* The class IDs of the texts. Class IDs must be in a range from 1 - n, where n is the number of classes.
+- *classNames:* The class names for each of the n classes.
+- *databaseID:* The ID of the new database. Used for creating multiple text databases.
+
+**InitDataBase**(string *csvpath*, string *databaseID*):
+
+- *csvpath:* The path to a [CSV](##CSV-Layout) file, where the texts are stored. 
+- *databaseID:* The ID of the new database. Used for creating multiple text databases.
+
+***Returns:*** 0 in case of success, [error code](##Error Codes) in case of failure.
+
+---
+
+*Gets all class names, for example identified by the topic modelling.*
+
+**GetClassNames**():
+
+***Returns:*** string[] *classNames* for classes from 1 - n, where n is the number of classes. In case of failure: [error code](##Error Codes).
+
+---
+
+*Sets the class names for all classes.*
+
+**SetClassNames**(string[] *classNames*):
+
+*  *classNames:* all class names for classes 1 - n, where n is the number of classes.
+
+***Returns:*** 0 in case of success, [error code](##Error Codes) in case of failure.
+
+---
+
+*Set class name for one specific class.*
+
+**SetClassName**(string *classID*, string *className*)
+
+* *classID:* The numerical ID of the class.
+* *className:* The new class name.
+
+***Returns:*** 0 in case of success, [error code](##Error Codes) in case of failure.
+
+---
+
+*Classify one or multiple texts: Gets the classes for text.*
+
+**GetClasses**(string[] *texts*):
+
+* *texts:* The texts of one or multiple documents, that should be classified.
+
+***Returns:*** string[] *textID*, string[] *classID*.
+
+---
+
+*Set classes for one or multiple texts.*
+
+**SetClasses**(string[] *textID*, string[] *classID*):
+
+* *textID:* The text IDs of the texts.
+
+* *classID:* The new class IDs of the texts.
+
+***Returns:*** 0 in case of success, [error code](##Error Codes) in case of failure.
+
+---
+
+*Classify a single text.*
+
+**GetClass**(string *text*):
+
+* *text:* The text that should be classified.
+
+***Returns:*** string *textID*, string *classID*
+
+---
+
+*Set class for one text.*
+
+**SetClass**(string *textID*, string *classID*):
+
+* *textID:* The text ID of the text.
+
+* *classID:* The new class ID of the text.
+
+***Returns:*** 0 in case of success, [error code](##Error Codes) in case of failure.
+
+## CSV-Layout
+
+To be continued...
+
+## Error Codes
+
+In general, the return codes are the following: 0 in case of success and a negative number for all errors. All integer IDs used for classification start with a positive number >= 1.
+
+List of error codes:
+
+*  To be continued
+
+## Getting Started
+
+These instructions will give you a copy of the project up and running on
+your local machine for development and testing purposes. See deployment
+for notes on deploying the project on a live system.
+
+### Prerequisites
+
+To be continued...
+- Python (v.?)
+- Outlook (v.?)
+
+### Installing
+
+To be continued...
+
+## Running the tests
+
+To be continued...
+
+### Unit Tests
+
+- To be continued...
+
+### Style test
+
+- Style Cop for .NET
+
+### Deployment
+
+To be continued...
+
+## Built With
+
+Open Source Software used:
+
+- Spacy, Numpy etc...
+
+## Contributing
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code
+of conduct, and the process for submitting pull requests to us.
+
+## Versioning
+
+To be continued...
+
+## Authors
+
+  - **Justus-Jonas Erker** - *What we did...* - (Justus-Jonas Erker)[https://github.com/Justus-Jonas]
+  - **Merlin Köhler** - *What we did...* -
+    [MerlinKoehler](https://github.com/MerlinKoehler)
+
+## License
+
+This project is licensed under the [MIT-License](LICENSE.md) - see the [LICENSE.md](LICENSE.md) file for
+details.
+
+## Acknowledgments
+
+  - To be continued

@@ -33,11 +33,18 @@ graph LR
 
 ```mermaid
 graph TD
-	A[1. Init Database] --> B[2. Clustering]
-    B --> C[3. Topic Modelling]
-    C --> D[4. Build Classification Models]
-    D --> E[5. Continous Classification]
-    E --> E
+	A[1. Inital Documents] --> P1[2. Preprocessing & Vectorization]
+	P1 --save--> DB[(Text Database)]
+	P1 --> C[3. Clustering]
+	C --update--> DB
+    C --> D[4. Topic Modelling]
+    D --> E[5. Build Classification Models]
+    E --> F[6. Continous Classification]
+    F --update--> DB
+    N[6.1. New Documents] --> P
+    P[6.2. Preprocessing & Vectorization] --> F
+    P --save--> DB
+    F --update--> F
 ```
 
 

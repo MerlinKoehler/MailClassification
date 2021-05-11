@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.902
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EWSMailExport", "EWSMailExport.csproj", "{7BD0D83A-AC4D-4B3D-AFEF-67B445AB540F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EWSMailExport", "EWSMailExport\EWSMailExport.csproj", "{7BD0D83A-AC4D-4B3D-AFEF-67B445AB540F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutlookMailClassification", "OutlookMailClassification\OutlookMailClassification.csproj", "{ADC39190-610A-43C5-97C3-43C5A9C1034C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,11 +17,15 @@ Global
 		{7BD0D83A-AC4D-4B3D-AFEF-67B445AB540F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7BD0D83A-AC4D-4B3D-AFEF-67B445AB540F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7BD0D83A-AC4D-4B3D-AFEF-67B445AB540F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADC39190-610A-43C5-97C3-43C5A9C1034C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADC39190-610A-43C5-97C3-43C5A9C1034C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADC39190-610A-43C5-97C3-43C5A9C1034C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADC39190-610A-43C5-97C3-43C5A9C1034C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {ACF803E4-CAB8-42F7-86E6-C7371C53122E}
+		SolutionGuid = {5FC03C13-F203-45C8-8BF4-FDCB78871F5A}
 	EndGlobalSection
 EndGlobal

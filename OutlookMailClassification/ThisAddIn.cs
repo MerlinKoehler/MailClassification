@@ -1,17 +1,48 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
+﻿using IniParser;
+using IniParser.Model;
+using System;
+using System.IO;
 using Outlook = Microsoft.Office.Interop.Outlook;
-using Office = Microsoft.Office.Core;
 
 namespace OutlookMailClassification
 {
+    // TODO: Web-API Encryption?
+
+
     public partial class ThisAddIn
     {
+        public static Outlook.Application OutlookApp;
+
+        private static string IniPath;
+        private static FileIniDataParser Parser;
+        public static IniData Config;
+
+
+
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
+            OutlookApp = this.Application;
+            Parser = new FileIniDataParser();
+            IniPath = Environment.ExpandEnvironmentVariables(@"%appdata%\Microsoft\Outlook\MailClassification.ini");
+            
+
+            if (!File.Exists(IniPath))
+            {
+                File.WriteAllText(IniPath, string.Empty);
+                Config = Parser.ReadFile(IniPath);
+                Config["Configuration"]["URL"] = "localhost";
+                Config["Configuration"]["Port"] = "39567";
+                Parser.WriteFile(IniPath, Config);
+            }
+            else
+            {
+                Config = Parser.ReadFile(IniPath);
+            }
+        }
+
+        internal static void SaveConfig()
+        {
+            Parser.WriteFile(IniPath, Config);
         }
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
@@ -28,10 +59,10 @@ namespace OutlookMailClassification
         /// </summary>
         private void InternalStartup()
         {
-            this.Startup += new System.EventHandler(ThisAddIn_Startup);
-            this.Shutdown += new System.EventHandler(ThisAddIn_Shutdown);
+            this.Startup += new System.EventHandler(this.ThisAddIn_Startup);
+            this.Shutdown += new System.EventHandler(this.ThisAddIn_Shutdown);
         }
-        
+
         #endregion
     }
 }

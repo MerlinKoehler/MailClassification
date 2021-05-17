@@ -33,6 +33,7 @@ namespace OutlookMailClassification
         private void btnSave_Click(object sender, EventArgs e)
         {
             ClusterFolder = Folders[cbDirectories.SelectedIndex];
+            this.Close();
         }
 
         private void btnCancel_Click(object sender, EventArgs e)

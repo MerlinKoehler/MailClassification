@@ -61,6 +61,7 @@
             // 
             this.btnInitDB.Label = "Initialize Database";
             this.btnInitDB.Name = "btnInitDB";
+            this.btnInitDB.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnInitDB_Click);
             // 
             // grpSettings
             // 

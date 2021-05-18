@@ -9,6 +9,8 @@ import os
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 import pickle
+import gensim
+from gensim import corpora
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
@@ -58,7 +60,7 @@ def preprocess():
           result = result + documents[key]['tags']
           documents[key]['tokens'] = result
       i += 1
-      print("Processing mail {} of {}".format(str(i), len(documents.keys())))
+      print("Processing document {} of {}".format(str(i), len(documents.keys())))
 
   documents_df = pd.DataFrame.from_dict(documents, orient='index')
 
@@ -74,22 +76,51 @@ def preprocess():
 
   return "Documents preprocessed!"
 
-@app.route('/api/cluster', methods=['GET'])
+@app.route('/api/cluster', methods=['POST'])
 def cluster():
-  k = 20
+  request_data = request.get_json()
+  k = request_data['k']
   X = np.zeros((len(documents), documents[list(documents.keys())[0]]['vector'].shape[1]))
   i = 0
   for key in documents.keys():
     X[i,:] = documents[key]['vector'].todense()
     i += 1
 
-  y = KMeans(n_clusters=30, random_state=20).fit_predict(X)
+  y = KMeans(n_clusters=k, random_state=20).fit_predict(X)
 
   i = 0
   for key in documents.keys():
     documents[key]['class'] = y[i]
     i += 1
   return "Documents clustered!"
+
+@app.route('/api/topics', methods=['GET'])
+def gettopics():
+  topics = {}
+  documents_df = pd.DataFrame.from_dict(documents, orient='index')
+
+  for k in list(set(documents_df['class'])):
+    df_filtered = documents_df[documents_df['class'] == k]  
+    texts = df_filtered['tokens'].to_numpy()
+
+    # create dictionary
+    dictionary = corpora.Dictionary(texts)
+    
+    # create BOW
+    corpus = [dictionary.doc2bow(text) for text in texts]
+    
+    # number of topics
+    num_topics = 1
+    
+    # Build LDA model
+    lda_model = gensim.models.LdaModel(corpus=corpus,
+                                      id2word=dictionary,
+                                      num_topics=num_topics)
+
+    res = lda_model.get_topic_terms(0,5)
+    topics[k] = dictionary[res[0][0]] + " " + dictionary[res[1][0]] + " " + dictionary[res[2][0]] + " " + dictionary[res[3][0]] + " " + dictionary[res[4][0]]
+  
+  return topics
 
 @app.route('/api/save', methods=['GET'])
 def save():

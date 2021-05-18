@@ -1,3 +1,0 @@
-pip==10.0.1
-setuptools==39.0.1
-flask==2.0.0

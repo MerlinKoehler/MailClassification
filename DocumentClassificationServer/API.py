@@ -11,6 +11,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import pickle
 import gensim
 from gensim import corpora
+from sklearn import svm
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
@@ -18,10 +19,34 @@ app.config["DEBUG"] = True
 nltk.download('stopwords')
 nlp = spacy.load('en_core_web_sm')
 STOPWORDS = set(stopwords.words('english'))
-if not os.path.exists('obj'):
-    os.makedirs('obj')
+
+def save_obj(obj, name ):
+    with open('obj/'+ name + '.pkl', 'wb') as f:
+        pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
+
+def load_obj(name ):
+    with open('obj/' + name + '.pkl', 'rb') as f:
+        return pickle.load(f)
+
+@app.route('/api/load', methods=['GET'])
+def load():
+    global documents 
+    documents = load_obj('documents')
+    return "Database loaded!"
+
+@app.route('/api/save', methods=['GET'])
+def save():
+    save_obj(documents, 'documents')
+    return "Database saved!"
 
 documents = {}
+
+if not os.path.exists('obj'):
+    os.makedirs('obj')
+else:
+    load();
+
+
 
 
 @app.route('/', methods=['GET'])
@@ -33,14 +58,29 @@ def home():
 def api_add():
     request_data = request.get_json()
     id = request_data['id']
-    text = request_data['text']
-    tags = request_data['tags']
-    documents[id] = {'text' : text, 'tags' : tags}
+
+    if id not in documents.keys():
+        documents[id] = {}
+
+    documents[id]['text'] = request_data['text']
+    documents[id]['tags'] = request_data['tags']
+
+    if "class" in request_data.keys():
+        documents[id]['class'] = request_data['class']
+        documents[id]['fixed'] = True
+
     return "Document added!"
 
 @app.route('/api/debug', methods=['GET'])
 def api_debug():
     return pd.DataFrame.from_dict(documents, orient='index').to_html()
+
+@app.route('/api/delclasses', methods=['GET'])
+def api_del_classes():
+    for key in documents.keys():
+        if "class" in documents[key].keys():
+            del documents[key]['class']
+    return "Deleted all classes!"
 
 @app.route('/api/preprocess', methods=['GET'])
 def preprocess():
@@ -118,23 +158,19 @@ def gettopics():
                                       num_topics=num_topics)
 
     res = lda_model.get_topic_terms(0,5)
-    topics[k] = dictionary[res[0][0]] + " " + dictionary[res[1][0]] + " " + dictionary[res[2][0]] + " " + dictionary[res[3][0]] + " " + dictionary[res[4][0]]
+    topics[k] = (str(k) + " - " + dictionary[res[0][0]] + " " + dictionary[res[1][0]] + " " + dictionary[res[2][0]] + " " + dictionary[res[3][0]] + " " + dictionary[res[4][0]]).replace(",", "").replace(";", "")
   
   return topics
 
-@app.route('/api/save', methods=['GET'])
-def save():
-    save_obj(documents, 'documents')
-    return "Database saved!"
+@app.route('/api/getclusters', methods=['GET'])
+def get_clusters():
+    id_classes = {}
+    for key in documents.keys():
+        id_classes[key] = int(documents[key]['class'])
+    return id_classes
 
 def very_special_tokenizer(text):
   return text
-
-@app.route('/api/load', methods=['GET'])
-def load():
-    global documents 
-    documents = load_obj('documents')
-    return "Database loaded!"
 
 @app.route('/api/deletedb', methods=['GET'])
 def deletedb():
@@ -142,13 +178,51 @@ def deletedb():
     documents = {}
     return "Database deleted!"
 
-def save_obj(obj, name ):
-    with open('obj/'+ name + '.pkl', 'wb') as f:
-        pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
+@app.route('/api/createmodel', methods=['GET'])
+def create_classification_model():
+  documents_df = pd.DataFrame.from_dict(documents, orient='index')
+  documents_df = documents_df[documents_df.fixed == True]
 
-def load_obj(name ):
-    with open('obj/' + name + '.pkl', 'rb') as f:
-        return pickle.load(f)
+  rows = documents_df.shape[0]
+  columns = documents_df.iloc[1].vector.shape[1]
+
+  X = np.zeros((rows, columns))
+
+  for i in range(documents_df.shape[0]):
+    X[i,:] = documents_df.iloc[i]['vector'].todense()
+    i += 1
+
+
+  y = documents_df['class']
+
+  global model
+  # create SVM
+  model = svm.SVC(kernel='linear')
+
+  model.fit(X,y)
+  return "Model successfully created!"
+
+@app.route('/api/getclasses', methods=['GET'])
+def get_classes():
+  results = {}
+
+  for key in documents.keys():
     
+    not_classified = False
+    if 'fixed' in documents[key].keys(): 
+      if documents[key]['fixed'] == False:
+        not_classified = True
+    else:
+      documents[key]['fixed'] = False
+      not_classified = True
+
+    if not_classified:
+      X = documents[key]['vector'].todense()
+      y = model.predict(X)[0]
+      documents[key]['class'] = y
+
+      results[key] = int(y)
+  
+  return results
 
 app.run()

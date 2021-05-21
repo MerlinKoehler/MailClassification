@@ -191,11 +191,17 @@
     can be found.
   -->
   <ItemGroup>
-    <Compile Include="FrmInitClusterDB.cs">
+    <Compile Include="FrmClassification.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FrmInitClusterDB.Designer.cs">
-      <DependentUpon>FrmInitClusterDB.cs</DependentUpon>
+    <Compile Include="FrmClassification.Designer.cs">
+      <DependentUpon>FrmClassification.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmClustering.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmClustering.Designer.cs">
+      <DependentUpon>FrmClustering.cs</DependentUpon>
     </Compile>
     <Compile Include="FrmSettings.cs">
       <SubType>Form</SubType>
@@ -212,8 +218,11 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <EmbeddedResource Include="FrmInitClusterDB.resx">
-      <DependentUpon>FrmInitClusterDB.cs</DependentUpon>
+    <EmbeddedResource Include="FrmClassification.resx">
+      <DependentUpon>FrmClassification.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmClustering.resx">
+      <DependentUpon>FrmClustering.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FrmSettings.resx">
       <DependentUpon>FrmSettings.cs</DependentUpon>

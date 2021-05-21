@@ -11,12 +11,14 @@ using Outlook = Microsoft.Office.Interop.Outlook;
 
 namespace OutlookMailClassification
 {
-    public partial class FrmInitClusterDB : Form
+    public partial class FrmClustering : Form
     {
 
         public Outlook.Folder ClusterFolder;
+        public int k;
+
         private List<Outlook.Folder> Folders;
-        public FrmInitClusterDB(List<Outlook.Folder> folders)
+        public FrmClustering(List<Outlook.Folder> folders)
         {
 
             InitializeComponent();
@@ -33,6 +35,7 @@ namespace OutlookMailClassification
         private void btnSave_Click(object sender, EventArgs e)
         {
             ClusterFolder = Folders[cbDirectories.SelectedIndex];
+            k = (int)nudClusters.Value;
             this.Close();
         }
 

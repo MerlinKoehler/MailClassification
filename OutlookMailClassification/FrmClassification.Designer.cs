@@ -1,6 +1,6 @@
 ﻿namespace OutlookMailClassification
 {
-    partial class FrmInitClusterDB
+    partial class FrmClassification
     {
         /// <summary>
         /// Required designer variable.
@@ -29,31 +29,24 @@
         private void InitializeComponent()
         {
             this.label1 = new System.Windows.Forms.Label();
-            this.cbDirectories = new System.Windows.Forms.ComboBox();
             this.btnSave = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
+            this.lvFolders = new System.Windows.Forms.ListView();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 13);
+            this.label1.Location = new System.Drawing.Point(12, 50);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(249, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Please select the base directory used for clustering:";
-            // 
-            // cbDirectories
-            // 
-            this.cbDirectories.FormattingEnabled = true;
-            this.cbDirectories.Location = new System.Drawing.Point(16, 29);
-            this.cbDirectories.Name = "cbDirectories";
-            this.cbDirectories.Size = new System.Drawing.Size(545, 21);
-            this.cbDirectories.TabIndex = 1;
+            this.label1.Size = new System.Drawing.Size(152, 13);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "Select folders for classification:";
             // 
             // btnSave
             // 
-            this.btnSave.Location = new System.Drawing.Point(486, 56);
+            this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSave.Location = new System.Drawing.Point(276, 388);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 23);
             this.btnSave.TabIndex = 2;
@@ -63,7 +56,8 @@
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(405, 56);
+            this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCancel.Location = new System.Drawing.Point(195, 388);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 3;
@@ -71,28 +65,40 @@
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
-            // FrmInitClusterDB
+            // lvFolders
+            // 
+            this.lvFolders.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lvFolders.CheckBoxes = true;
+            this.lvFolders.HideSelection = false;
+            this.lvFolders.Location = new System.Drawing.Point(15, 66);
+            this.lvFolders.Name = "lvFolders";
+            this.lvFolders.Size = new System.Drawing.Size(336, 316);
+            this.lvFolders.TabIndex = 4;
+            this.lvFolders.UseCompatibleStateImageBehavior = false;
+            this.lvFolders.View = System.Windows.Forms.View.Details;
+            // 
+            // FrmClassify
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(573, 83);
+            this.ClientSize = new System.Drawing.Size(363, 419);
+            this.Controls.Add(this.lvFolders);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnSave);
-            this.Controls.Add(this.cbDirectories);
             this.Controls.Add(this.label1);
-            this.Name = "FrmInitClusterDB";
-            this.Text = "FrmInitClusterDB";
-            this.Load += new System.EventHandler(this.FrmInitClusterDB_Load);
+            this.Name = "FrmClassify";
+            this.Text = "FrmClassify";
+            this.Load += new System.EventHandler(this.FrmClassify_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.ComboBox cbDirectories;
         private System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.Button btnCancel;
+        private System.Windows.Forms.ListView lvFolders;
     }
 }

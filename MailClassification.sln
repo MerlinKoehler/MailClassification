@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EWSMailExport", "EWSMailExp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutlookMailClassification", "OutlookMailClassification\OutlookMailClassification.csproj", "{ADC39190-610A-43C5-97C3-43C5A9C1034C}"
 EndProject
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "DocumentClassificationServer", "DocumentClassificationServer\DocumentClassificationServer.pyproj", "{E8F972D7-39DD-478F-8199-7C9FE3C06AE4}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,8 +21,6 @@ Global
 		{ADC39190-610A-43C5-97C3-43C5A9C1034C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ADC39190-610A-43C5-97C3-43C5A9C1034C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ADC39190-610A-43C5-97C3-43C5A9C1034C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E8F972D7-39DD-478F-8199-7C9FE3C06AE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E8F972D7-39DD-478F-8199-7C9FE3C06AE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

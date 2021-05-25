@@ -40,10 +40,14 @@ def save():
     return "Database saved!"
 
 documents = {}
+model = None
+tfidf = None
+
 
 if not os.path.exists('obj'):
     os.makedirs('obj')
-else:
+elif os.path.exists('obj/documents.pkl'):
+    print("Loading data and models")
     load();
 
 
@@ -82,6 +86,42 @@ def api_del_classes():
             del documents[key]['class']
     return "Deleted all classes!"
 
+@app.route('/api/initpreprocess', methods=['GET'])
+def initpreprocess():
+  i = 1
+  for key in documents.keys():
+      if 'tokens' not in documents[key].keys():
+          # Lemmatize
+          doc = nlp(documents[key]['text'])
+          result = []
+          for token in doc:
+              str_token = str(token)
+              if not (str_token.startswith("http://") or str_token.startswith("https://") or len(str_token.strip()) <= 1 or '\\n' in str_token or '\n' in str_token):
+                  lemma = token.lemma_.lower()
+                  if not lemma in STOPWORDS:
+                      result.append(lemma)
+              
+          result = result + documents[key]['tags']
+          documents[key]['tokens'] = result
+      i += 1
+      print("Processing document {} of {}".format(str(i), len(documents.keys())))
+
+  documents_df = pd.DataFrame.from_dict(documents, orient='index')
+
+  tokenized_text = documents_df['tokens'].to_numpy()
+
+  global tfidf
+
+  tfidf = TfidfVectorizer(tokenizer=very_special_tokenizer, lowercase=False, sublinear_tf=True)
+  X = tfidf.fit_transform(tokenized_text)
+
+  idx = 0
+  for key in documents.keys():
+    documents[key]['vector'] = X[idx]
+    idx += 1
+
+  return "Documents preprocessed!"
+
 @app.route('/api/preprocess', methods=['GET'])
 def preprocess():
   i = 1
@@ -106,8 +146,7 @@ def preprocess():
 
   tokenized_text = documents_df['tokens'].to_numpy()
 
-  tfidf = TfidfVectorizer(tokenizer=very_special_tokenizer, lowercase=False, sublinear_tf=True)
-  X = tfidf.fit_transform(tokenized_text)
+  X = tfidf.transform(tokenized_text)
 
   idx = 0
   for key in documents.keys():
@@ -115,6 +154,7 @@ def preprocess():
     idx += 1
 
   return "Documents preprocessed!"
+
 
 @app.route('/api/cluster', methods=['POST'])
 def cluster():

@@ -7,6 +7,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EWSMailExport", "EWSMailExp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutlookMailClassification", "OutlookMailClassification\OutlookMailClassification.csproj", "{ADC39190-610A-43C5-97C3-43C5A9C1034C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{50D1A059-C4F6-4701-B8B7-0F059B94FABC}"
+	ProjectSection(SolutionItems) = preProject
+		API.md = API.md
+		LICENSE.md = LICENSE.md
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

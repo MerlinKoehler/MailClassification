@@ -3,7 +3,8 @@
 
 # NLP Mail Classification
 
-This repository contains an e-mail clustering and classification
+This repository contains an e-mail clustering and classification.
+The corresponding web API used can be found under [DocumentClassification](https://github.com/MerlinKoehler/DocumentClassification) 
 
 ## Software Design
 

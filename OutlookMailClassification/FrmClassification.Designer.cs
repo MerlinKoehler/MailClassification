@@ -45,8 +45,8 @@
             // 
             // btnSave
             // 
-            this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSave.Location = new System.Drawing.Point(276, 388);
+            this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSave.Location = new System.Drawing.Point(433, 357);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 23);
             this.btnSave.TabIndex = 2;
@@ -56,8 +56,8 @@
             // 
             // btnCancel
             // 
-            this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCancel.Location = new System.Drawing.Point(195, 388);
+            this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCancel.Location = new System.Drawing.Point(352, 357);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 3;
@@ -67,27 +67,28 @@
             // 
             // lvFolders
             // 
-            this.lvFolders.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.lvFolders.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lvFolders.CheckBoxes = true;
             this.lvFolders.HideSelection = false;
             this.lvFolders.Location = new System.Drawing.Point(15, 66);
             this.lvFolders.Name = "lvFolders";
-            this.lvFolders.Size = new System.Drawing.Size(336, 316);
+            this.lvFolders.Size = new System.Drawing.Size(493, 285);
             this.lvFolders.TabIndex = 4;
             this.lvFolders.UseCompatibleStateImageBehavior = false;
             this.lvFolders.View = System.Windows.Forms.View.Details;
             // 
-            // FrmClassify
+            // FrmClassification
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(363, 419);
+            this.ClientSize = new System.Drawing.Size(520, 388);
             this.Controls.Add(this.lvFolders);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.label1);
-            this.Name = "FrmClassify";
+            this.Name = "FrmClassification";
             this.Text = "FrmClassify";
             this.Load += new System.EventHandler(this.FrmClassify_Load);
             this.ResumeLayout(false);

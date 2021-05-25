@@ -11,6 +11,8 @@ namespace OutlookMailClassification
 {
     public partial class MailClassification
     {
+        string[] classes = null;
+
         private void MailClassification_Load(object sender, RibbonUIEventArgs e)
         {
 
@@ -37,6 +39,7 @@ namespace OutlookMailClassification
                     HttpWebRequest httpWebRequest;
                     HttpWebResponse httpResponse;
 
+                    /*
                     httpWebRequest = (HttpWebRequest)WebRequest.Create("http://" + ThisAddIn.Config["Configuration"]["URL"] + ":" + ThisAddIn.Config["Configuration"]["Port"] + "/api/deletedb");
                     httpWebRequest.Timeout = 600000;
                     httpWebRequest.Method = "GET";
@@ -45,6 +48,7 @@ namespace OutlookMailClassification
                     {
                         var result = streamReader.ReadToEnd();
                     }
+                    */
 
 
                     // TODO: Add status bar
@@ -103,7 +107,7 @@ namespace OutlookMailClassification
                     // TODO: Add multiple document repositories
                     // TODO: Add hierachy clustering
 
-                    httpWebRequest = (HttpWebRequest)WebRequest.Create("http://" + ThisAddIn.Config["Configuration"]["URL"] + ":" + ThisAddIn.Config["Configuration"]["Port"] + "/api/preprocess");
+                    httpWebRequest = (HttpWebRequest)WebRequest.Create("http://" + ThisAddIn.Config["Configuration"]["URL"] + ":" + ThisAddIn.Config["Configuration"]["Port"] + "/api/initpreprocess");
                     httpWebRequest.Timeout = 600000;
                     httpWebRequest.Method = "GET";
                     httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
@@ -155,9 +159,12 @@ namespace OutlookMailClassification
 
                     Outlook.Categories ol_categories = ThisAddIn.OutlookApp.ActiveExplorer().CurrentFolder.Store.Categories;
 
+                    classes = new string[categories.Count];
+
                     foreach (var category in categories)
                     {
                         ol_categories.Add(category.Value);
+                        classes[category.Key] = category.Value; 
                     }
 
                     httpWebRequest = (HttpWebRequest)WebRequest.Create("http://" + ThisAddIn.Config["Configuration"]["URL"] + ":" + ThisAddIn.Config["Configuration"]["Port"] + "/api/getclusters");
@@ -178,7 +185,7 @@ namespace OutlookMailClassification
                             Outlook.MailItem mail = (Outlook.MailItem)itm;
                             if (mail_class.ContainsKey(mail.EntryID))
                             {
-                                mail.Categories = categories[mail_class[mail.EntryID]];
+                                mail.Categories = classes[mail_class[mail.EntryID]];
                                 mail.Save();
                             }
                         }
@@ -231,7 +238,7 @@ namespace OutlookMailClassification
             this.DeleteCategories((Outlook.Folder)folder);
 
             Outlook.Categories ol_categories = ThisAddIn.OutlookApp.ActiveExplorer().CurrentFolder.Store.Categories;
-            for (int i = ol_categories.Count; i >= 0; i--)
+            for (int i = ol_categories.Count; i > 0; i--)
             {
                 ol_categories.Remove(i);
             }
@@ -279,7 +286,7 @@ namespace OutlookMailClassification
             {
                 if (itm is Outlook.MailItem)
                 {
-                    if (random.NextDouble() <= 0.25)
+                    if (random.NextDouble() <= (1.0/3.0))
                     {
                         Outlook.MailItem mail = (Outlook.MailItem)itm;
                         mail.Move(testdata);
@@ -366,7 +373,7 @@ namespace OutlookMailClassification
                 i++;
             }
 
-            httpWebRequest = (HttpWebRequest)WebRequest.Create("http://" + ThisAddIn.Config["Configuration"]["URL"] + ":" + ThisAddIn.Config["Configuration"]["Port"] + "/api/preprocess");
+            httpWebRequest = (HttpWebRequest)WebRequest.Create("http://" + ThisAddIn.Config["Configuration"]["URL"] + ":" + ThisAddIn.Config["Configuration"]["Port"] + "/api/initpreprocess");
             httpWebRequest.Timeout = 600000;
             httpWebRequest.Method = "GET";
             httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
@@ -394,26 +401,134 @@ namespace OutlookMailClassification
             }
 
 
+
             Outlook.Categories ol_categories = ThisAddIn.OutlookApp.ActiveExplorer().CurrentFolder.Store.Categories;
 
-            if (ol_categories.Count > 0)
-            {
-                for (int x = ol_categories.Count; x >= 0; x--)
+                for (int x = ol_categories.Count; x > 0; x--)
                 {
                     ol_categories.Remove(x);
                 }
-            }
 
+
+            classes = new string[frmClassify.SelectedFolders.Count];
+
+            i = 0;
             foreach (Outlook.Folder folder in frmClassify.SelectedFolders)
             {
-                ol_categories.Add(folder.Name);
+                ol_categories.Add(i + " " + folder.Name);
+                classes[i] = i + " " + folder.Name;
+                i++;
             }
 
         }
 
         private void btnClassify_Click(object sender, RibbonControlEventArgs e)
         {
+            Outlook.MAPIFolder folder = ThisAddIn.OutlookApp.ActiveExplorer().CurrentFolder;
 
+            HttpWebRequest httpWebRequest;
+            HttpWebResponse httpResponse;
+
+            // TODO: Add status bar
+            // TODO: Do in seperate thread
+            foreach (object itm in folder.Items)
+            {
+                if (itm is Outlook.MailItem)
+                {
+
+                    Outlook.MailItem mail = (Outlook.MailItem)itm;
+
+                    httpWebRequest = (HttpWebRequest)WebRequest.Create("http://" + ThisAddIn.Config["Configuration"]["URL"] + ":" + ThisAddIn.Config["Configuration"]["Port"] + "/api/add");
+                    httpWebRequest.ContentType = "application/json";
+                    httpWebRequest.Method = "POST";
+
+                    using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+                    {
+                        List<string> tag_list = new List<string>();
+
+                        if (mail.Sender != null)
+                        {
+                            tag_list.Add(mail.Sender.Address);
+                            tag_list.Add(mail.Sender.Name);
+                        }
+
+                        tag_list.AddRange(this.GetSMTPAddressesForRecipients(mail));
+
+                        if (mail.CC != null)
+                        {
+                            tag_list.AddRange(mail.CC.Split(';'));
+                        }
+
+
+
+                        string json = JsonSerializer.Serialize(new
+                        {
+                            id = mail.EntryID,
+                            text = mail.Subject + "\r\n" + mail.Body,
+                            tags = tag_list
+                        });
+
+                        streamWriter.Write(json);
+                    }
+
+                    httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+                    using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                    {
+                        var result = streamReader.ReadToEnd();
+                    }
+                }
+            }
+
+            // TODO: Increase timeout
+            // TODO: start new thread on server
+            // TODO: do a status page
+            // TODO: Add multiple document repositories
+            // TODO: Add hierachy clustering
+
+            httpWebRequest = (HttpWebRequest)WebRequest.Create("http://" + ThisAddIn.Config["Configuration"]["URL"] + ":" + ThisAddIn.Config["Configuration"]["Port"] + "/api/preprocess");
+            httpWebRequest.Timeout = 600000;
+            httpWebRequest.Method = "GET";
+            httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            {
+                var result = streamReader.ReadToEnd();
+            }
+
+            httpWebRequest = (HttpWebRequest)WebRequest.Create("http://" + ThisAddIn.Config["Configuration"]["URL"] + ":" + ThisAddIn.Config["Configuration"]["Port"] + "/api/save");
+            httpWebRequest.Timeout = 600000;
+            httpWebRequest.Method = "GET";
+            httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            {
+                var result = streamReader.ReadToEnd();
+            }
+
+            Outlook.Categories ol_categories = ThisAddIn.OutlookApp.ActiveExplorer().CurrentFolder.Store.Categories;
+
+            httpWebRequest = (HttpWebRequest)WebRequest.Create("http://" + ThisAddIn.Config["Configuration"]["URL"] + ":" + ThisAddIn.Config["Configuration"]["Port"] + "/api/getclasses");
+            httpWebRequest.Timeout = 600000;
+            httpWebRequest.Method = "GET";
+            httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+
+            Dictionary<string, int> mail_class = new Dictionary<string, int>();
+            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            {
+                mail_class = JsonSerializer.Deserialize<Dictionary<string, int>>(streamReader.ReadToEnd());
+            }
+
+            foreach (object itm in folder.Items)
+            {
+                if (itm is Outlook.MailItem)
+                {
+                    Outlook.MailItem mail = (Outlook.MailItem)itm;
+                    if (mail_class.ContainsKey(mail.EntryID))
+                    {
+                        int @class = mail_class[mail.EntryID];
+                        mail.Categories = classes[@class];
+                        mail.Save();
+                    }
+                }
+            }
         }
     }
 }

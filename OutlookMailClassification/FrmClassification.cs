@@ -15,7 +15,7 @@ namespace OutlookMailClassification
     {
         List<Outlook.Folder> Folders;
 
-        public List<Outlook.Folder> SelectedFolders { get; }
+        public List<Outlook.Folder> SelectedFolders { get; private set; }
 
         public FrmClassification(List<Outlook.Folder> folders)
         {
@@ -51,6 +51,8 @@ namespace OutlookMailClassification
                     SelectedFolders.Add(Folders[i]);
                 }
             }
+
+            SelectedFolders = SelectedFolders.OrderBy(o => o.Name).ToList();
 
             this.Close();
         }
